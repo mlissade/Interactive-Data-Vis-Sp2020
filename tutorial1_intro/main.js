@@ -1,7 +1,7 @@
 d3.csv("breast-cancer.data").then(data => {
     console.log("data", data);
 
-    const table = d3.select("#d3-table");
+    const table = d3.select("table");
     
     const thead = table.append("thead");
     thead

@@ -27,7 +27,18 @@ d3.csv("../../data/surveyResults.csv").then(data => {
     .append("tbody")
     .selectAll("tr")
     .data(data)
-    .join("tr");
+    .join("tr")
+    .attr("class", d=> {
+      // any logic
+      console.log(d);
+      let tag;
+      if (+d["Python or R (or data analysis tool)"] > 3) {
+        tag = "python";
+      }
+      if (+d["Terminal (Bash/Zsh)"] > 3) {
+        tag = "terminal";
+      }
+    });
 
   // cells
   rows

@@ -1,4 +1,4 @@
-d3.csv("breast-cancer.data").then(data => {
+d3.csv("../../data/breast-cancer.data").then(data => {
     console.log("data", data);
 
     const table = d3.select("table");
@@ -31,5 +31,5 @@ d3.csv("breast-cancer.data").then(data => {
     // update the below logic to apply to your dataset
     .attr("class", d => +d > 3 ? 'high' : null)
     .text(d => d);
-    
+   
 });

@@ -19,6 +19,8 @@ d3.csv("../data/squirrelActivities.csv", d3.autoType).then(data => {
 
     const yAxis = d3.axisLeft(yScale).ticks(data.length);
 
+    //const xAxis = d3.axisBottom(xScale).ticks(d => d.count);
+
     const svg = d3
         .select("#d3-container")
         .append("svg")
@@ -50,6 +52,7 @@ d3.csv("../data/squirrelActivities.csv", d3.autoType).then(data => {
     svg
         .append("g")
         .attr("class", "axis")
-        .attr("transform", `translate(120, ${height - margin.bottom, margin.top})`)
+        .attr("transform", `translate(130, ${height - margin.bottom, margin.top})`)
+        //.call(xAxis)
         .call(yAxis);
 });

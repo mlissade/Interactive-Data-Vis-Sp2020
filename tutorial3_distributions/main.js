@@ -13,12 +13,12 @@ let yScale;
 /* APPLICATION STATE */
 let state = {
   data: [],
-  selection: "All" // + YOUR FILTER SELECTION
+  selection: "All", // + YOUR FILTER SELECTION
 };
 
-/* LOAD DATA */
-d3.json("../data/iris.csv", d3.autoType).then(raw_data => {
-  // + SET YOUR DATA PATH
+/* LOAD DATA */  
+// + SET YOUR DATA PATH
+d3.csv("../data/iris.csv", d3.autoType).then(raw_data => {
   console.log("raw_data", raw_data);
   state.data = raw_data;
   init();
@@ -35,7 +35,8 @@ function init() {
 
   yScale = d3
     .scaleLinear()
-    .domain(d3.extent(state.data, d => d.sepal_width_cm));
+    .domain(d3.extent(state.data, d => d.sepal_width_cm))
+    .range([height - margin.bottom, margin.top]);
   
     // + AXES
   const xAxis = d3.axisBottom(xScale);
@@ -46,9 +47,8 @@ function init() {
   const selectElement = d3.select("#dropdown").on("change", function() {
     // `this` === the selectElement
     // 'this.value' holds the dropdown value a user just selected
-
-    state.selection = this.value
-    console.log("new value is", this.value);
+    console.log("new value is", this.value)
+    state.selection = this.value;
     draw(); // re-draw the graph based on this new selection
   });
 
@@ -77,7 +77,7 @@ function init() {
     .attr("class", "axis-label")
     .attr("x", "50%")
     .attr("dy", "3em")
-    .text("Ideology Rating");
+    .text("Sepal Length");
 
  // add the yAxis
  svg
@@ -90,7 +90,7 @@ function init() {
     .attr("y", "50%")
     .attr("dx", "-3em")
     .attr("writing-mode", "vertical-rl")
-    .text("Environmental Rating");
+    .text("Sepal Width");
 
   draw(); // calls the draw function
 }
@@ -100,16 +100,56 @@ function init() {
 function draw() {
   // + FILTER DATA BASED ON STATE
   let filteredData = state.data;
-  if (state.selection !== "All"){
+  if (state.selection !== "All") {
     filteredData = state.data.filter(d => d.species === state.selection);
   }
 
-  // const dot = svg
-  //   .selectAll("circle")
-  //   .data(filteredData, d => d.name)
-  //   .join(
-  //     enter => enter, // + HANDLE ENTER SELECTION
-  //     update => update, // + HANDLE UPDATE SELECTION
-  //     exit => exit // + HANDLE EXIT SELECTION
-  //   );
+
+  const dot = svg
+    .selectAll(".dot")
+    .data(filteredData, d => d.id)
+    .join(
+      enter => 
+        enter // + HANDLE ENTER SELECTION
+          .append("circle")
+          .attr("class", "dot") // Note: this is important so we can identify it in future updates
+          .attr("stroke", "lightgrey")
+          .attr("opacity", 0.5)
+          .attr("fill", d => {
+            if (d.species === "Iris-setosa") return "blue";
+            else if (d.species === "Iris-versicolor") return "red";
+            else return "green";
+          })
+          .attr("r", radius)
+          .attr("cy", d => yScale(d.sepal_width_cm))
+          .attr("cx", d => margin.left) // initial value - to be transitioned
+          .call(enter =>
+            enter
+              .transition() // initialize transition
+              .delay(d => 500 * d.sepal_length_cm) // delay on each element
+              .duration(500) // duration 500ms
+              .attr("cx", d => xScale(d.sepal_length_cm))
+          ),
+      update => 
+        update.call(update =>
+        // + HANDLE UPDATE SELECTION
+          update
+            .transition()
+            .duration(250)
+            .attr("stroke", "black")
+            .transition()
+            .duration(250)
+            .attr("stroke", "lightgrey")
+        ),
+      exit => 
+        exit.call(exit =>
+        // + HANDLE EXIT SELECTION
+          exit
+            .transition()
+            .delay(d => 50 * d.sepal_length_cm)
+            .duration(500)
+            .attr("cx", width)
+            .remove()
+        )
+     );
 }

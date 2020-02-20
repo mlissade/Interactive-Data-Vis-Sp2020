@@ -47,7 +47,7 @@ function init() {
   const selectElement = d3.select("#dropdown").on("change", function() {
     // `this` === the selectElement
     // 'this.value' holds the dropdown value a user just selected
-    console.log("new value is", this.value)
+    console.log("new selected species is", this.value)
     state.selection = this.value;
     draw(); // re-draw the graph based on this new selection
   });
@@ -114,21 +114,21 @@ function draw() {
           .append("circle")
           .attr("class", "dot") // Note: this is important so we can identify it in future updates
           .attr("stroke", "lightgrey")
-          .attr("opacity", 0.5)
+          .attr("opacity", 0.7)
           .attr("fill", d => {
             if (d.species === "Iris-setosa") return "blue";
             else if (d.species === "Iris-versicolor") return "red";
             else return "green";
           })
           .attr("r", radius)
-          .attr("cy", d => yScale(d.sepal_width_cm))
-          .attr("cx", d => margin.left) // initial value - to be transitioned
+          .attr("cx", d => xScale(d.sepal_length_cm))
+          .attr("cy", d => margin.top) // initial value - to be transitioned
           .call(enter =>
             enter
               .transition() // initialize transition
-              .delay(d => 500 * d.sepal_length_cm) // delay on each element
-              .duration(500) // duration 500ms
-              .attr("cx", d => xScale(d.sepal_length_cm))
+              .delay(d => 500 * d.sepal_width_cm) // delay on each element
+              .duration(250)
+              .attr("cy", d => yScale(d.sepal_width_cm))
           ),
       update => 
         update.call(update =>
@@ -146,9 +146,9 @@ function draw() {
         // + HANDLE EXIT SELECTION
           exit
             .transition()
-            .delay(d => 50 * d.sepal_length_cm)
-            .duration(500)
-            .attr("cx", width)
+            .delay(d => 50 * d.sepal_width_cm)
+            .duration(250)
+            .attr("cy", height)
             .remove()
         )
      );

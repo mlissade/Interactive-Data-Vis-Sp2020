@@ -17,7 +17,7 @@ let state = {
 };
 
 /* LOAD DATA */
-d3.json("../data/environmentRatings.json", d3.autoType).then(raw_data => {
+d3.json("../data/iris.csv", d3.autoType).then(raw_data => {
   // + SET YOUR DATA PATH
   console.log("raw_data", raw_data);
   state.data = raw_data;
@@ -28,8 +28,18 @@ d3.json("../data/environmentRatings.json", d3.autoType).then(raw_data => {
 // this will be run *one time* when the data finishes loading in 
 function init() {
   // + SCALES
+  xScale = d3
+    .scaleLinear()
+    .domain(d3.extent(state.data, d => d.sepal_length_cm))
+    .range([margin.left, width - margin.right]);
 
-  // + AXES
+  yScale = d3
+    .scaleLinear()
+    .domain(d3.extent(state.data, d => d.sepal_width_cm));
+  
+    // + AXES
+  const xAxis = d3.axisBottom(xScale);
+  const yAxis = d3.axisLeft(yScale);
 
   // + UI ELEMENT SETUP
 
@@ -45,14 +55,42 @@ function init() {
   // add in dropdown options from the unique values in the data
   selectElement
     .selectAll("option")
-    .data(["All", "1", "2", "3"]) // + ADD UNIQUE VALUES
+    .data(["All", "Iris-setosa", "Iris-versicolor", "Iris-virginica"]) // + ADD UNIQUE VALUES
     .join("option")
     .attr("value", d => d)
     .text(d => d);
 
   // + CREATE SVG ELEMENT
+  svg = d3
+    .select("#d3-container")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-  // + CALL AXES
+   // add the xAxis
+   svg
+    .append("g")
+    .attr("class", "axis x-axis")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(xAxis)
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("x", "50%")
+    .attr("dy", "3em")
+    .text("Ideology Rating");
+
+ // add the yAxis
+ svg
+    .append("g")
+    .attr("class", "axis y-axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(yAxis)
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("y", "50%")
+    .attr("dx", "-3em")
+    .attr("writing-mode", "vertical-rl")
+    .text("Environmental Rating");
 
   draw(); // calls the draw function
 }
@@ -60,8 +98,11 @@ function init() {
 /* DRAW FUNCTION */
  // we call this everytime there is an update to the data/state
 function draw() {
-  
   // + FILTER DATA BASED ON STATE
+  let filteredData = state.data;
+  if (state.selection !== "All"){
+    filteredData = state.data.filter(d => d.species === state.selection);
+  }
 
   // const dot = svg
   //   .selectAll("circle")

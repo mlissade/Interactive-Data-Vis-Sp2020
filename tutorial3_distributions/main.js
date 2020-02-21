@@ -127,7 +127,7 @@ function draw() {
             enter
               .transition() // initialize transition
               .delay(d => 500 * d.sepal_width_cm) // delay on each element
-              .duration(250)
+              .duration(200)
               .attr("cy", d => yScale(d.sepal_width_cm))
           ),
       update => 
@@ -135,10 +135,10 @@ function draw() {
         // + HANDLE UPDATE SELECTION
           update
             .transition()
-            .duration(250)
+            .duration(200)
             .attr("stroke", "black")
             .transition()
-            .duration(250)
+            .duration(200)
             .attr("stroke", "lightgrey")
         ),
       exit => 
@@ -147,7 +147,7 @@ function draw() {
           exit
             .transition()
             .delay(d => 50 * d.sepal_width_cm)
-            .duration(250)
+            .duration(200)
             .attr("cy", height)
             .remove()
         )

@@ -121,14 +121,15 @@ function draw() {
             else return "lime";
           })
           .attr("r", radius)
-          .attr("cx", d => xScale(d.sepal_length_cm))
-          .attr("cy", d => margin.top) // initial value - to be transitioned
+          .attr("cx", d => margin.left)
+          .attr("cy", d => [height - margin.bottom]) // initial value - to be transitioned
           .call(enter =>
             enter
               .transition() // initialize transition
               .delay(d => 500 * d.sepal_width_cm) // delay on each element
               .duration(200)
               .attr("cy", d => yScale(d.sepal_width_cm))
+              .attr("cx", d => xScale(d.sepal_length_cm))
           ),
       update => 
         update.call(update =>
@@ -146,9 +147,10 @@ function draw() {
         // + HANDLE EXIT SELECTION
           exit
             .transition()
-            .delay(d => 50 * d.sepal_width_cm)
+            .delay(d => 500 * d.sepal_width_cm)
             .duration(200)
-            .attr("cy", height)
+            .attr("cy", margin.top)
+            .attr("cx", width)
             .remove()
         )
      );

@@ -9,7 +9,7 @@ body {
   }
   
   .dot:hover {
-    fill: cyan;
+    fill: red;
   }
   
   .axis-label {

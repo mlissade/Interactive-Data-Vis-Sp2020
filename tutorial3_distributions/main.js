@@ -117,8 +117,8 @@ function draw() {
           .attr("opacity", 0.7)
           .attr("fill", d => {
             if (d.species === "Iris-setosa") return "blue";
-            else if (d.species === "Iris-versicolor") return "red";
-            else return "green";
+            else if (d.species === "Iris-versicolor") return "magenta";
+            else return "lime";
           })
           .attr("r", radius)
           .attr("cx", d => xScale(d.sepal_length_cm))

@@ -127,7 +127,7 @@ function init() {
  * */
 function draw() {
   // filter the data for the selectedParty
-  let filteredData;
+  let filteredData = [];
   if (state.selectedCountry !== null) {
     filteredData = state.data.filter(d => d.country === state.selectedCountry);
   }

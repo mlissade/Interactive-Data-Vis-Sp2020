@@ -2,7 +2,7 @@
 const width = window.innerWidth * 0.7,
   height = window.innerHeight * 0.7,
   margin = { top: 20, bottom: 50, left: 60, right: 40 },
-  radius = 5
+  radius = 5,
   default_selection = "Select a Region";
 
 // these variables allow us to access anything we manipulate in init() but need access to in draw().
@@ -31,17 +31,18 @@ function init() {
   // + SCALES
   xScale = d3
     .scaleTime()
-    .domain(d3.extent(state.data, d => d.year))
+    .domain(d3.extent(state.data, d => d.Date))
     .range([margin.left, width - margin.right]);
 
   yScale = d3
     .scaleLinear()
     .domain(0, d3.max(state.data, d => d.AveragePrice))
     .range([height - margin.bottom, margin.top]);
+
   // + AXES
-
+  const xAxis = d3.axisBottom(xScale);
+  yAxis = d3.axisLeft(yScale);
   // + UI ELEMENT SETUP
-
   const selectElement = d3.select("#dropdown").on("change", function() {
     // `this` === the selectElement
     // 'this.value' holds the dropdown value a user just selected
@@ -54,17 +55,17 @@ function init() {
   selectElement
     .selectAll("option")
     .data([
-      ...Array.from(new Set(state.data.map(d => d.region))),
       default_selection,
+      ...Array.from(new Set(state.data.map(d => d.region))),
     ]) // + ADD DATA VALUES FOR DROPDOWN
     .join("option")
     .attr("value", d => d)
     .text(d => d);
 
   // + SET SELECT ELEMENT'S DEFAULT VALUE (optional)
-selectElement.property("value", default_selection);
+  selectElement.property("value", default_selection);
   // + CREATE SVG ELEMENT
-svg = d3
+  svg = d3
     .select("#d3-container")
     .append("svg")
     .attr("width", width)
@@ -79,7 +80,7 @@ svg = d3
     .attr("class", "axis-label")
     .attr("x", "50%")
     .attr("dy", "3em")
-    .text("Year");
+    .text("Date");
 
   svg
     .append("g")
@@ -100,26 +101,72 @@ svg = d3
 // we call this everytime there is an update to the data/state
 function draw() {
   // + FILTER DATA BASED ON STATE
-  let filteredData;
+  let filteredData = [];
   if (state.selection !== null) {
     filteredData = state.data.filter(d => d.region === state.selection);
   }
   //
   // + UPDATE SCALE(S), if needed
-  yScale.domain([0, d3.max(filteredData, d => d.AveragePrice)]);
+  yScale.domain(0, d3.max(filteredData, d => d.AveragePrice));
   // + UPDATE AXIS/AXES, if needed
+  d3.select("g.y-axis")
+    .transition()
+    .duration(1000)
+    .call(yAxis.scale(yScale));
+
   const lineFunc = d3
     .line()
-    .x(d => xScale(d.year))
+    .x(d => xScale(d.Date))
+    .y(d => yScale(d.AveragePrice));
+
   // + DRAW CIRCLES, if you decide to
-  // const dot = svg
-  //   .selectAll("circle")
-  //   .data(filteredData, d => d.name)
-  //   .join(
-  //     enter => enter, // + HANDLE ENTER SELECTION
-  //     update => update, // + HANDLE UPDATE SELECTION
-  //     exit => exit // + HANDLE EXIT SELECTION
-  //   );
-  //
+  const dot = svg
+    .selectAll(".dot")
+    .data(filteredData, d => d.Id)
+    .join(
+      enter => 
+        enter
+          .append("circle")
+          .attr("class", "dot")
+          .attr("r", radius)
+          .attr("cy", height - margin.bottom)
+          .attr("cx", d => xScale(d.Date)), // + HANDLE ENTER SELECTION
+      update => update, // + HANDLE UPDATE SELECTION
+      exit => 
+        exit.call(exit =>
+          exit
+            .transition()
+            .delay(d => d.Date)
+            .duration(500)
+            .attr("cy", height - margin.bottom)
+            .remove() // + HANDLE EXIT SELECTION
+        )
+    )
+    .call(
+      selection =>
+        selection
+          .transition()
+          .duration(1000)
+          .attr("cy", d => yScale(d.AveragePrice))
+    );
   // + DRAW LINE AND AREA
+    const line = svg
+    .selectAll("path.trend")
+    .data([filteredData])
+    .join(
+      enter =>
+        enter
+          .append("path")
+          .attr("class", "trend")
+          .attr("opacity", 0), // start them off as opacity 0 and fade them in
+      update => update, // pass through the update selection
+      exit => exit.remove()
+    )
+    .call(selection =>
+      selection
+        .transition() // sets the transition on the 'Enter' + 'Update' selections together.
+        .duration(1000)
+        .attr("opacity", 1)
+        .attr("d", d => lineFunc(d))
+    );
 }

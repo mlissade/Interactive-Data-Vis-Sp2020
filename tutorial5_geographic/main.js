@@ -14,7 +14,13 @@ let svg;
  * APPLICATION STATE
  * */
 let state = {
-  // + SET UP STATE
+  geojson: null,
+  extremes: null,
+  hover: {
+    latitude: null,
+    longitude: null,
+    state: null,
+  },
 };
 
 /**
@@ -22,10 +28,12 @@ let state = {
  * Using a Promise.all([]), we can load more than one dataset at a time
  * */
 Promise.all([
-  d3.json("PATH_TO_YOUR_GEOJSON"),
-  d3.csv("PATH_TO_ANOTHER_DATASET", d3.autoType),
+  d3.json("../data/usState.json"),
+  d3.csv("../data/usHeatExtremes.csv", d3.autoType),
 ]).then(([geojson, otherData]) => {
   // + SET STATE WITH DATA
+  state.geojson = geojson;
+  state.extremes = extremes;
   console.log("state: ", state);
   init();
 });
@@ -43,8 +51,9 @@ function init() {
     .attr("height", height);
 
   // + SET UP PROJECTION
+  const projection = d3.geoAlberUsa().fitSize([width, height], state.geojson);
   // + SET UP GEOPATH
-
+  const path = d3.geoPath().projection(projection);
   // + DRAW BASE MAP PATH
   // + ADD EVENT LISTENERS (if you want)
 

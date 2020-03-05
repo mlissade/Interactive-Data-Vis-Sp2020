@@ -57,6 +57,7 @@ function init() {
   // + DRAW BASE MAP PATH
   // + ADD EVENT LISTENERS (if you want)
 
+  
   draw(); // calls the draw function
 }
 

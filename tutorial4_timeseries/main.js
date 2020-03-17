@@ -10,6 +10,8 @@ const width = window.innerWidth * 0.7,
 let svg;
 let xScale;
 let yScale;
+let xAxis;
+let yAxis;
 
 /* APPLICATION STATE */
 let state = {

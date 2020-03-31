@@ -23,7 +23,9 @@ let state = {
 // + SET YOUR DATA PATH
 d3.csv("../data/avocado.csv", d3.autoType).then(raw_data => {
   console.log("raw_data", raw_data);
-  state.data = raw_data;
+  state.data = raw_data
+    .sort((a, b) => d3
+      .ascending(a.Date, b.Date));
   init();
 });
 
@@ -38,8 +40,9 @@ function init() {
 
   yScale = d3
     .scaleLinear()
-    .domain(0, d3.max(state.data, d => d.AveragePrice))
-    .range([height - margin.bottom, margin.top]);
+    .domain([0, d3.max(state.data, d => d.AveragePrice)])
+    .range([height - margin.bottom, margin.top])
+    console.log("yScale", yScale.domain());
 
   // + AXES
   const xAxis = d3.axisBottom(xScale);
@@ -109,7 +112,7 @@ function draw() {
   }
   //
   // + UPDATE SCALE(S), if needed
-  yScale.domain(0, d3.max(filteredData, d => d.AveragePrice));
+  yScale.domain([0, d3.max(filteredData, d => d.AveragePrice)]);
   // + UPDATE AXIS/AXES, if needed
   d3.select("g.y-axis")
     .transition()
@@ -141,8 +144,9 @@ function draw() {
             .delay(d => d.Date)
             .duration(500)
             .attr("cy", height - margin.bottom)
-            .remove() // + HANDLE EXIT SELECTION
+             // + HANDLE EXIT SELECTION
         )
+        .remove()
     )
     .call(
       selection =>
